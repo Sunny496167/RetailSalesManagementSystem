@@ -2,11 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "to develop backend for retails sales management",
-  "main": "index.js",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -15,11 +16,19 @@
   "keywords": [
     "Retails",
     "Sales",
+    "Management",
     "Dataset",
     "Node",
     "Express",
     "jwt"
   ],
   "author": "Sunny Kumar",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11"
+  }
 }
