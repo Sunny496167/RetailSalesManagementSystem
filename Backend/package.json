@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "to develop backend for retails sales management",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sunny496167/RetailSalesManagementSystem"
+  },
+  "keywords": [
+    "Retails",
+    "Sales",
+    "Dataset",
+    "Node",
+    "Express",
+    "jwt"
+  ],
+  "author": "Sunny Kumar",
+  "license": "ISC"
+}
