@@ -14,24 +14,31 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ⭐ Direct download link - Dropbox (dl=1 required!)
+// ⭐ Direct download link - Dropbox (MUST end with dl=1)
 const datasetURL = "https://www.dropbox.com/scl/fi/vdoovyzfpgm2d2k6yxz5w/truestate_assignment_dataset.csv?rlkey=zt63myzyibflct8nlplpmtp2k&st=zvx4qlaf&dl=1";
 
-// Temp file location where CSV will be downloaded
+// Temp CSV download location
 const tempDatasetPath = path.join(__dirname, "../../data/cloud_dataset.csv");
 
-// ⭐ Dropbox download logic (simple + reliable)
+// ⭐ Dropbox download + redirect handling
 async function downloadDataset(url, dest) {
   return new Promise((resolve, reject) => {
-    console.log("⟳ Downloading dataset from Dropbox...");
-
-    const file = fs.createWriteStream(dest);
+    console.log("⟳ Connecting to Dropbox...");
 
     https.get(url, (res) => {
+
+      if (res.statusCode === 302 && res.headers.location) {
+        console.log("⟳ Dropbox redirect detected... following...");
+        return downloadDataset(res.headers.location, dest)
+          .then(resolve)
+          .catch(reject);
+      }
+
       if (res.statusCode !== 200) {
         return reject(`Download failed: HTTP ${res.statusCode}`);
       }
 
+      const file = fs.createWriteStream(dest);
       res.pipe(file);
 
       file.on("finish", () => {
@@ -42,6 +49,7 @@ async function downloadDataset(url, dest) {
       });
 
       file.on("error", reject);
+
     }).on("error", reject);
   });
 }
@@ -82,13 +90,15 @@ function normalizeRecord(record) {
 
     if (['age', 'quantity', 'pricePerUnit', 'discountPercentage', 'totalAmount', 'finalAmount'].includes(camelKey)) {
       normalized[camelKey] = value ? parseFloat(value) : 0;
-    } else if (camelKey === 'date') {
+    } 
+    else if (camelKey === 'date') {
       const parsed = new Date(value);
       normalized[camelKey] = isNaN(parsed.getTime()) ? null : parsed;
     } else {
       normalized[camelKey] = value ? String(value).trim() : '';
     }
   }
+
   return normalized;
 }
 
@@ -107,7 +117,6 @@ async function loadDataset(forceReload = false) {
       clearDatabase();
     }
 
-    // Download dataset before loading
     await downloadDataset(datasetURL, tempDatasetPath);
 
     console.log("⟳ Parsing dataset...");
@@ -116,27 +125,22 @@ async function loadDataset(forceReload = false) {
       const batchSize = 1000;
       let batch = [];
       let totalProcessed = 0;
-      let errorCount = 0;
       const startTime = Date.now();
 
       fs.createReadStream(tempDatasetPath)
         .pipe(csv())
         .on('data', (data) => {
-          try {
-            const normalized = normalizeRecord(data);
-            batch.push(normalized);
+          const normalized = normalizeRecord(data);
+          batch.push(normalized);
 
-            if (batch.length >= batchSize) {
-              insertRecords(batch);
-              totalProcessed += batch.length;
-              batch = [];
+          if (batch.length >= batchSize) {
+            insertRecords(batch);
+            totalProcessed += batch.length;
+            batch = [];
 
-              if (totalProcessed % 10000 === 0) {
-                console.log(`⟳ ${totalProcessed.toLocaleString()} records processed...`);
-              }
+            if (totalProcessed % 10000 === 0) {
+              console.log(`⟳ ${totalProcessed.toLocaleString()} records processed...`);
             }
-          } catch (err) {
-            errorCount++;
           }
         })
         .on('end', () => {
@@ -147,10 +151,15 @@ async function loadDataset(forceReload = false) {
 
           const duration = ((Date.now() - startTime) / 1000).toFixed(2);
           console.log(`✓ Loaded ${totalProcessed.toLocaleString()} records in ${duration}s`);
+
           resolve(totalProcessed);
         })
-        .on('error', reject);
+        .on('error', (err) => {
+          console.error("✗ CSV reading error:", err.message);
+          reject(err);
+        });
     });
+
   } catch (error) {
     console.error("✗ Load failed:", error);
     throw error;
