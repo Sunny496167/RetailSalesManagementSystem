@@ -14,23 +14,31 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ⭐ Direct download link converted from Google Drive share link
+// ⭐ Direct download link - Google Drive
 const datasetURL = "https://drive.google.com/uc?export=download&id=1YzcSBB6s0SWz3ru97SVd5qaxOQf1VrSQ";
 
-// Temp file path where dataset will be downloaded
 const tempDatasetPath = path.join(__dirname, "../../data/cloud_dataset.csv");
 
+// ⭐ FIXED Google Drive redirect + token handling
 async function downloadDataset(url, dest) {
   return new Promise((resolve, reject) => {
-    console.log("⟳ Downloading dataset from Google Drive...");
+    console.log("⟳ Connecting to Google Drive...");
 
-    const file = fs.createWriteStream(dest);
-    https.get(url, (response) => {
-      if (response.statusCode !== 200) {
-        return reject(`Download failed. HTTP Status: ${response.statusCode}`);
+    https.get(url, (res) => {
+      // Handle large file redirect
+      if (res.statusCode === 302 || res.headers.location) {
+        console.log("⟳ Following redirect...");
+        return downloadDataset(res.headers.location, dest)
+          .then(resolve).catch(reject);
       }
 
-      response.pipe(file);
+      // Google Drive returns HTML page instead of file if blocked
+      if (res.headers['content-type'].includes("text/html")) {
+        return reject("❌ Google Drive blocked download - file too large or login required");
+      }
+
+      const file = fs.createWriteStream(dest);
+      res.pipe(file);
 
       file.on("finish", () => {
         file.close(() => {
@@ -38,9 +46,9 @@ async function downloadDataset(url, dest) {
           resolve(dest);
         });
       });
-    }).on('error', (err) => {
-      fs.unlink(dest, () => reject(err));
-    });
+
+      file.on("error", reject);
+    }).on("error", reject);
   });
 }
 
@@ -105,10 +113,10 @@ async function loadDataset(forceReload = false) {
       clearDatabase();
     }
 
-    // ⭐ Download remote dataset before processing
+    // Download CSV
     await downloadDataset(datasetURL, tempDatasetPath);
 
-    console.log(`⟳ Loading data from cloud_dataset.csv`);
+    console.log(`⟳ Parsing dataset...`);
 
     return new Promise((resolve, reject) => {
       const batchSize = 1000;
@@ -130,12 +138,11 @@ async function loadDataset(forceReload = false) {
               batch = [];
 
               if (totalProcessed % 10000 === 0) {
-                console.log(`  ⟳ Processed ${totalProcessed.toLocaleString()} records...`);
+                console.log(`⟳ ${totalProcessed.toLocaleString()} records processed...`);
               }
             }
           } catch (err) {
             errorCount++;
-            if (errorCount <= 5) console.log("⚠ Error:", err.message);
           }
         })
         .on('end', () => {
@@ -146,14 +153,12 @@ async function loadDataset(forceReload = false) {
 
           const duration = ((Date.now() - startTime) / 1000).toFixed(2);
           console.log(`✓ Loaded ${totalProcessed.toLocaleString()} records in ${duration}s`);
-          if (errorCount > 0) console.log(`⚠ Skipped ${errorCount} faulty rows`);
-
           resolve(totalProcessed);
         })
         .on('error', reject);
     });
   } catch (error) {
-    console.error("✗ Load failed:", error.message);
+    console.error("✗ Load failed:", error);
     throw error;
   }
 }
