@@ -1,9 +1,11 @@
+// frontend/src/components/Layout/Header.jsx
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleSidebar, toggleFilterPanel } from '../../store/slices/uiSlice';
+import { toggleSidebar } from '../../store/slices/uiSlice';
+import { setSearch } from '../../store/slices/filtersSlice';
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { isFilterPanelOpen } = useSelector((state) => state.ui);
+  const { search } = useSelector((state) => state.filters);
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
@@ -30,22 +32,21 @@ const Header = () => {
               </svg>
             </button>
             <h1 className="text-xl font-bold text-gray-900">
-              Retail Sales Management
+              Sales Management System
             </h1>
           </div>
-
+          
           <div className="flex items-center space-x-3">
-            <button
-              onClick={() => dispatch(toggleFilterPanel())}
-              className={`p-2 rounded-lg transition-colors ${
-                isFilterPanelOpen
-                  ? 'bg-primary-100 text-primary-600'
-                  : 'hover:bg-gray-100 text-gray-600'
-              }`}
-              aria-label="Toggle filters"
-            >
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Name, Phone no."
+                value={search}
+                onChange={(e) => dispatch(setSearch(e.target.value))}
+                className="w-80 px-4 py-2 pl-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
               <svg
-                className="w-6 h-6"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -54,10 +55,10 @@ const Header = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </button>
+            </div>
           </div>
         </div>
       </div>

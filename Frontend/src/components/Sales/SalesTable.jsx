@@ -5,11 +5,19 @@ import ErrorMessage from '../Common/ErrorMessage';
 
 const SalesTable = ({ data, loading, error, onRetry }) => {
   if (loading) {
-    return <Loading text="Loading sales data..." />;
+    return (
+      <div className="py-12">
+        <Loading text="Loading sales data..." />
+      </div>
+    );
   }
 
   if (error) {
-    return <ErrorMessage message={error} onRetry={onRetry} />;
+    return (
+      <div className="py-12">
+        <ErrorMessage message={error} onRetry={onRetry} />
+      </div>
+    );
   }
 
   if (!data || data.length === 0) {
@@ -40,28 +48,31 @@ const SalesTable = ({ data, loading, error, onRetry }) => {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Transaction ID
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Date
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Customer
+              Customer ID
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Product
+              Customer name
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Category
+              Phone Number
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Gender
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Age
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Product Category
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Quantity
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Price
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Total
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Status
             </th>
           </tr>
         </thead>
@@ -69,51 +80,42 @@ const SalesTable = ({ data, loading, error, onRetry }) => {
           {data.map((sale, index) => (
             <tr key={index} className="hover:bg-gray-50 transition-colors">
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {sale.transactionId || sale.id}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {formatDate(sale.date)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {sale.customerId}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-medium text-gray-900">
                   {sale.customerName}
                 </div>
-                <div className="text-sm text-gray-500">{sale.phoneNumber}</div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-900">{sale.productName}</div>
-                <div className="text-sm text-gray-500">{sale.brand}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                <div className="flex items-center text-sm text-gray-900">
+                  {sale.phoneNumber}
+                  <button className="ml-2 text-gray-400 hover:text-gray-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {sale.gender}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {sale.age}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-900 text-white">
                   {sale.productCategory}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {sale.quantity}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {formatCurrency(sale.pricePerUnit)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">
-                  {formatCurrency(sale.finalAmount)}
-                </div>
-                {sale.discountPercentage > 0 && (
-                  <div className="text-xs text-green-600">
-                    {sale.discountPercentage}% off
-                  </div>
-                )}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                  className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    sale.orderStatus === 'Completed'
-                      ? 'bg-green-100 text-green-800'
-                      : sale.orderStatus === 'Pending'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {sale.orderStatus}
-                </span>
               </td>
             </tr>
           ))}
