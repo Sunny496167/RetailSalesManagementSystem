@@ -13,7 +13,9 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // your Vercel frontend link
+  origin: [
+    "https://retail-sales-management-system-two.vercel.app"
+  ], // your Vercel frontend link
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
