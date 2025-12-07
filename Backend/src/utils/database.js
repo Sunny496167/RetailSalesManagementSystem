@@ -1,13 +1,24 @@
 // backend/src/utils/database.js - COMPLETE FIXED VERSION
 import Database from 'better-sqlite3';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.join(__dirname, '../../data/sales.db');
+const dataDir = path.join(__dirname, '../../data');
+if (!fs.existsSync(dataDir)) {
+  console.log("⟳ Creating data directory...");
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
+// DB file path
+const dbPath = path.join(dataDir, 'sales.db');
+
+// Create/connect DB
 const db = new Database(dbPath);
+console.log("✓ SQLite DB ready at:", dbPath);
 
 // Enable WAL mode for better concurrent read performance
 db.pragma('journal_mode = WAL');
