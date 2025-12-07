@@ -14,10 +14,10 @@ const Layout = () => {
       {/* Main wrapper - shifts with sidebar */}
       <div
         className={`min-h-screen transition-all duration-300 ${
-          isSidebarOpen ? 'ml-64' : 'ml-0'
+          isSidebarOpen ? 'ml-64' : 'ml-16'
         }`}
       >
-        {/* Header - Fixed at top, reduced height */}
+        {/* Header - Fixed at top */}
         <Header />
         
         {/* Main Content - Proper top padding to account for header */}
