@@ -14,30 +14,24 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ⭐ Direct download link - Google Drive
-const datasetURL = "https://www.dropbox.com/scl/fi/vdoovyzfpgm2d2k6yxz5w/truestate_assignment_dataset.csv?rlkey=zt63myzyibflct8nlplpmtp2k&st=zvx4qlaf&dl=0";
+// ⭐ Direct download link - Dropbox (dl=1 required!)
+const datasetURL = "https://www.dropbox.com/scl/fi/vdoovyzfpgm2d2k6yxz5w/truestate_assignment_dataset.csv?rlkey=zt63myzyibflct8nlplpmtp2k&st=zvx4qlaf&dl=1";
 
+// Temp file location where CSV will be downloaded
 const tempDatasetPath = path.join(__dirname, "../../data/cloud_dataset.csv");
 
-// ⭐ FIXED Google Drive redirect + token handling
+// ⭐ Dropbox download logic (simple + reliable)
 async function downloadDataset(url, dest) {
   return new Promise((resolve, reject) => {
-    console.log("⟳ Connecting to Google Drive...");
+    console.log("⟳ Downloading dataset from Dropbox...");
+
+    const file = fs.createWriteStream(dest);
 
     https.get(url, (res) => {
-      // Handle large file redirect
-      if (res.statusCode === 302 || res.headers.location) {
-        console.log("⟳ Following redirect...");
-        return downloadDataset(res.headers.location, dest)
-          .then(resolve).catch(reject);
+      if (res.statusCode !== 200) {
+        return reject(`Download failed: HTTP ${res.statusCode}`);
       }
 
-      // Google Drive returns HTML page instead of file if blocked
-      if (res.headers['content-type'].includes("text/html")) {
-        return reject("❌ Google Drive blocked download - file too large or login required");
-      }
-
-      const file = fs.createWriteStream(dest);
       res.pipe(file);
 
       file.on("finish", () => {
@@ -113,10 +107,10 @@ async function loadDataset(forceReload = false) {
       clearDatabase();
     }
 
-    // Download CSV
+    // Download dataset before loading
     await downloadDataset(datasetURL, tempDatasetPath);
 
-    console.log(`⟳ Parsing dataset...`);
+    console.log("⟳ Parsing dataset...");
 
     return new Promise((resolve, reject) => {
       const batchSize = 1000;
