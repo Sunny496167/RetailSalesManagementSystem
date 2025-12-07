@@ -8,23 +8,23 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Fixed Header */}
-      <Header />
-      
-      {/* Sidebar */}
+      {/* Sidebar - Fixed position, full height */}
       <Sidebar />
       
-      {/* Main Content Area - with proper margin/padding */}
-      <main
-        className={`transition-all duration-300 ease-in-out ${
+      {/* Main wrapper - shifts with sidebar */}
+      <div
+        className={`min-h-screen transition-all duration-300 ${
           isSidebarOpen ? 'ml-64' : 'ml-0'
         }`}
-        style={{ paddingTop: '80px' }} // Space for fixed header
       >
-        <div className="px-6 py-6">
+        {/* Header - Fixed at top, reduced height */}
+        <Header />
+        
+        {/* Main Content - Proper top padding to account for header */}
+        <main className="pt-16 px-6 py-6">
           <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

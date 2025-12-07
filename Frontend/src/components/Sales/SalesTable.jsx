@@ -1,4 +1,3 @@
-// frontend/src/components/Sales/SalesTable.jsx
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import Loading from '../Common/Loading';
 import ErrorMessage from '../Common/ErrorMessage';
@@ -110,7 +109,7 @@ const SalesTable = ({ data, loading, error, onRetry }) => {
                 {sale.age}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-900 text-white">
+                <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-gray-800">
                   {sale.productCategory}
                 </span>
               </td>

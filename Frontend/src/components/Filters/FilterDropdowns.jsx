@@ -51,19 +51,19 @@ const FilterDropdowns = () => {
     };
 
     return (
-      <div className="relative px-4 py-8">
+      <div className="relative">
         <button
           onClick={() => toggleDropdown(filterKey)}
-          className="inline-flex items-center px-4 py-8 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-colors"
         >
           {label}
           {selectedCount > 0 && (
-            <span className="ml-2 px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full font-semibold">
+            <span className="ml-2 px-2 py-0.5 text-[10px] md:text-xs bg-primary-100 text-primary-700 rounded-full font-semibold">
               {selectedCount}
             </span>
           )}
           <svg
-            className={`ml-2 w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`ml-1 w-3 h-3 md:w-4 md:h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -75,7 +75,7 @@ const FilterDropdowns = () => {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={closeDropdown} />
-            <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20 max-h-80 overflow-y-auto">
+            <div className="absolute left-0 mt-2 w-56 md:w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20 max-h-80 overflow-y-auto">
               <div className="p-2">
                 {options.map((option) => (
                   <label
@@ -88,7 +88,7 @@ const FilterDropdowns = () => {
                       onChange={() => handleToggle(option)}
                       className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                     />
-                    <span className="ml-3 text-sm text-gray-700">{option}</span>
+                    <span className="ml-3 text-xs md:text-sm text-gray-700">{option}</span>
                   </label>
                 ))}
               </div>
@@ -104,19 +104,19 @@ const FilterDropdowns = () => {
     const hasValue = filters.ageMin !== null || filters.ageMax !== null;
 
     return (
-      <div className="relative p-8">
+      <div className="relative">
         <button
           onClick={() => toggleDropdown('age')}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-colors"
         >
-          Age Range
+          Age
           {hasValue && (
-            <span className="ml-2 px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full font-semibold">
+            <span className="ml-2 px-2 py-0.5 text-[10px] md:text-xs bg-primary-100 text-primary-700 rounded-full font-semibold">
               1
             </span>
           )}
           <svg
-            className={`ml-2 w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`ml-1 w-3 h-3 md:w-4 md:h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -128,10 +128,10 @@ const FilterDropdowns = () => {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={closeDropdown} />
-            <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20 p-4">
+            <div className="absolute left-0 mt-2 w-56 md:w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20 p-4">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Min Age</label>
+                  <label className="block text-[11px] font-medium text-gray-700 mb-1">Min Age</label>
                   <input
                     type="number"
                     value={filters.ageMin ?? ''}
@@ -143,12 +143,12 @@ const FilterDropdowns = () => {
                         })
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
                     placeholder="Min"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Max Age</label>
+                  <label className="block text-[11px] font-medium text-gray-700 mb-1">Max Age</label>
                   <input
                     type="number"
                     value={filters.ageMax ?? ''}
@@ -160,7 +160,7 @@ const FilterDropdowns = () => {
                         })
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
                     placeholder="Max"
                   />
                 </div>
@@ -180,16 +180,16 @@ const FilterDropdowns = () => {
       <div className="relative">
         <button
           onClick={() => toggleDropdown('date')}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-colors"
         >
           Date
           {hasValue && (
-            <span className="ml-2 px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full font-semibold">
+            <span className="ml-2 px-2 py-0.5 text-[10px] md:text-xs bg-primary-100 text-primary-700 rounded-full font-semibold">
               1
             </span>
           )}
           <svg
-            className={`ml-2 w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`ml-1 w-3 h-3 md:w-4 md:h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -201,10 +201,10 @@ const FilterDropdowns = () => {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={closeDropdown} />
-            <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20 p-4">
+            <div className="absolute left-0 mt-2 w-56 md:w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20 p-4">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">From</label>
+                  <label className="block text-[11px] font-medium text-gray-700 mb-1">From</label>
                   <input
                     type="date"
                     value={filters.dateFrom || ''}
@@ -216,11 +216,11 @@ const FilterDropdowns = () => {
                         })
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">To</label>
+                  <label className="block text-[11px] font-medium text-gray-700 mb-1">To</label>
                   <input
                     type="date"
                     value={filters.dateTo || ''}
@@ -232,7 +232,7 @@ const FilterDropdowns = () => {
                         })
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
                   />
                 </div>
               </div>
@@ -253,11 +253,11 @@ const FilterDropdowns = () => {
       <div className="relative">
         <button
           onClick={() => toggleDropdown('sort')}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-colors"
         >
-          Sort by: {currentSort?.label || 'Date (Newest First)'}
+          Sort: {currentSort?.label || 'Date (Newest First)'}
           <svg
-            className={`ml-2 w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`ml-1 w-3 h-3 md:w-4 md:h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -269,7 +269,7 @@ const FilterDropdowns = () => {
         {isOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={closeDropdown} />
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
               <div className="p-2">
                 {SORT_OPTIONS.map((option) => (
                   <button
@@ -278,7 +278,7 @@ const FilterDropdowns = () => {
                       dispatch(setSort({ sortBy: option.sortBy, sortOrder: option.sortOrder }));
                       closeDropdown();
                     }}
-                    className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-gray-50 transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded text-xs md:text-sm hover:bg-gray-50 transition-colors ${
                       currentSort?.value === option.value
                         ? 'bg-primary-50 text-primary-700 font-medium'
                         : 'text-gray-700'
@@ -311,14 +311,15 @@ const FilterDropdowns = () => {
   ].reduce((sum, count) => sum + count, 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center space-x-3 flex-wrap gap-2">
+    <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 mb-4">
+      <div className="flex items-center justify-between gap-4">
+        {/* Left side: all filters in a single row */}
+        <div className="flex items-center gap-2 flex-nowrap">
           <button
             onClick={handleResetFilters}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            className="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -328,14 +329,14 @@ const FilterDropdowns = () => {
             </svg>
             Reset
             {activeFiltersCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 text-xs bg-gray-100 text-gray-700 rounded-full font-semibold">
+              <span className="ml-2 px-2 py-0.5 text-[10px] md:text-xs bg-gray-100 text-gray-700 rounded-full font-semibold">
                 {activeFiltersCount}
               </span>
             )}
           </button>
 
           <FilterDropdown
-            label="Customer Region"
+            label="Region"
             value={filters.customerRegion}
             options={filterOptions.customerRegions}
             filterKey="customerRegion"
@@ -351,7 +352,7 @@ const FilterDropdowns = () => {
           <AgeRangeDropdown />
 
           <FilterDropdown
-            label="Product Category"
+            label="Category"
             value={filters.productCategory}
             options={filterOptions.productCategories}
             filterKey="productCategory"
@@ -365,7 +366,7 @@ const FilterDropdowns = () => {
           />
 
           <FilterDropdown
-            label="Payment Method"
+            label="Payment"
             value={filters.paymentMethod}
             options={filterOptions.paymentMethods}
             filterKey="paymentMethod"
@@ -374,6 +375,7 @@ const FilterDropdowns = () => {
           <DateRangeDropdown />
         </div>
 
+        {/* Right side: Sort dropdown, like search box on your screenshot */}
         <SortDropdown />
       </div>
     </div>

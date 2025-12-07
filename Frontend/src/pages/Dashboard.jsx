@@ -1,4 +1,3 @@
-// frontend/src/pages/DashboardPage.jsx
 import { useSelector } from 'react-redux';
 import { useSalesData } from '../hooks/useSalesData';
 import { useFilters } from '../hooks/useFilters';
@@ -22,7 +21,7 @@ const Dashboard = () => {
       <FilterDropdowns />
 
       {/* Sales Table/Grid */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
         {viewMode === 'table' ? (
           <SalesTable data={sales} loading={loading} error={error} onRetry={refetch} />
         ) : (
@@ -31,7 +30,7 @@ const Dashboard = () => {
 
         {/* Pagination */}
         {!loading && !error && sales.length > 0 && (
-          <div className="border-t border-gray-200 px-6 py-4">
+          <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
             <Pagination
               currentPage={pagination.currentPage}
               totalPages={pagination.totalPages}
