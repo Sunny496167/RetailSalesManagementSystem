@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ⭐ Direct download link - Google Drive
-const datasetURL = "https://drive.google.com/uc?export=download&id=1YzcSBB6s0SWz3ru97SVd5qaxOQf1VrSQ";
+const datasetURL = "https://www.dropbox.com/scl/fi/vdoovyzfpgm2d2k6yxz5w/truestate_assignment_dataset.csv?rlkey=zt63myzyibflct8nlplpmtp2k&st=zvx4qlaf&dl=0";
 
 const tempDatasetPath = path.join(__dirname, "../../data/cloud_dataset.csv");
 
