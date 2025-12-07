@@ -1,4 +1,4 @@
-// backend/src/utils/database.js
+// backend/src/utils/database.js - COMPLETE FIXED VERSION
 import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -284,49 +284,91 @@ function getFilteredCount({ search, filters }) {
   return result ? result.count : 0;
 }
 
-// Get filter options
+// Get filter options - FIXED VERSION
 function getFilterOptions() {
-  return {
-    customerRegions: db.prepare('SELECT DISTINCT customerRegion FROM sales WHERE customerRegion IS NOT NULL AND customerRegion != "" ORDER BY customerRegion').all().map(r => r.customerRegion),
-    genders: db.prepare('SELECT DISTINCT gender FROM sales WHERE gender IS NOT NULL AND gender != "" ORDER BY gender').all().map(r => r.gender),
-    productCategories: db.prepare('SELECT DISTINCT productCategory FROM sales WHERE productCategory IS NOT NULL AND productCategory != "" ORDER BY productCategory').all().map(r => r.productCategory),
-    paymentMethods: db.prepare('SELECT DISTINCT paymentMethod FROM sales WHERE paymentMethod IS NOT NULL AND paymentMethod != "" ORDER BY paymentMethod').all().map(r => r.paymentMethod),
-    ageRange: db.prepare('SELECT MIN(age) as min, MAX(age) as max FROM sales WHERE age IS NOT NULL').get(),
-    dateRange: db.prepare('SELECT MIN(date) as min, MAX(date) as max FROM sales WHERE date IS NOT NULL').get()
-  };
+  try {
+    // Get unique customer regions
+    const customerRegionsQuery = 'SELECT DISTINCT customerRegion FROM sales WHERE customerRegion IS NOT NULL AND customerRegion != ? ORDER BY customerRegion';
+    const customerRegions = db.prepare(customerRegionsQuery).all('').map(r => r.customerRegion);
+
+    // Get unique genders
+    const gendersQuery = 'SELECT DISTINCT gender FROM sales WHERE gender IS NOT NULL AND gender != ? ORDER BY gender';
+    const genders = db.prepare(gendersQuery).all('').map(r => r.gender);
+
+    // Get unique product categories
+    const productCategoriesQuery = 'SELECT DISTINCT productCategory FROM sales WHERE productCategory IS NOT NULL AND productCategory != ? ORDER BY productCategory';
+    const productCategories = db.prepare(productCategoriesQuery).all('').map(r => r.productCategory);
+
+    // Get unique payment methods
+    const paymentMethodsQuery = 'SELECT DISTINCT paymentMethod FROM sales WHERE paymentMethod IS NOT NULL AND paymentMethod != ? ORDER BY paymentMethod';
+    const paymentMethods = db.prepare(paymentMethodsQuery).all('').map(r => r.paymentMethod);
+
+    // Get age range
+    const ageRangeQuery = 'SELECT MIN(age) as min, MAX(age) as max FROM sales WHERE age IS NOT NULL';
+    const ageRange = db.prepare(ageRangeQuery).get();
+
+    // Get date range
+    const dateRangeQuery = 'SELECT MIN(date) as min, MAX(date) as max FROM sales WHERE date IS NOT NULL';
+    const dateRange = db.prepare(dateRangeQuery).get();
+
+    return {
+      customerRegions: customerRegions || [],
+      genders: genders || [],
+      productCategories: productCategories || [],
+      paymentMethods: paymentMethods || [],
+      ageRange: ageRange || { min: 0, max: 100 },
+      dateRange: dateRange || { min: null, max: null }
+    };
+  } catch (error) {
+    console.error('Error in getFilterOptions:', error);
+    throw error;
+  }
 }
 
 // Get all unique tags
 function getAllTags() {
-  const records = db.prepare('SELECT DISTINCT tags FROM sales WHERE tags IS NOT NULL AND tags != ""').all();
-  const tagsSet = new Set();
-  
-  records.forEach(record => {
-    if (record.tags) {
-      const tags = record.tags.split(',').map(t => t.trim());
-      tags.forEach(tag => {
-        if (tag) tagsSet.add(tag);
-      });
-    }
-  });
-  
-  return Array.from(tagsSet).sort();
+  try {
+    const query = 'SELECT DISTINCT tags FROM sales WHERE tags IS NOT NULL AND tags != ?';
+    const records = db.prepare(query).all('');
+    const tagsSet = new Set();
+    
+    records.forEach(record => {
+      if (record.tags) {
+        const tags = record.tags.split(',').map(t => t.trim());
+        tags.forEach(tag => {
+          if (tag) tagsSet.add(tag);
+        });
+      }
+    });
+    
+    return Array.from(tagsSet).sort();
+  } catch (error) {
+    console.error('Error in getAllTags:', error);
+    throw error;
+  }
 }
 
 // Get statistics
 function getStatistics() {
-  const stats = db.prepare(`
-    SELECT 
-      COUNT(*) as totalTransactions,
-      SUM(finalAmount) as totalRevenue,
-      AVG(finalAmount) as averageOrderValue,
-      SUM(quantity) as totalQuantitySold,
-      COUNT(DISTINCT customerId) as uniqueCustomers,
-      COUNT(DISTINCT productId) as uniqueProducts
-    FROM sales
-  `).get();
-  
-  return stats;
+  try {
+    const query = `
+      SELECT 
+        COUNT(*) as totalTransactions,
+        SUM(finalAmount) as totalRevenue,
+        AVG(finalAmount) as averageOrderValue,
+        SUM(quantity) as totalQuantitySold,
+        COUNT(DISTINCT customerId) as uniqueCustomers,
+        COUNT(DISTINCT productId) as uniqueProducts
+      FROM sales
+    `;
+    
+    const stats = db.prepare(query).get();
+    
+    return stats;
+  } catch (error) {
+    console.error('Error in getStatistics:', error);
+    throw error;
+  }
 }
 
 export {
