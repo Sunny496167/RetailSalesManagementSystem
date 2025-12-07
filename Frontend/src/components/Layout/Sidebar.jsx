@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import { toggleSidebar } from '../../store/slices/uiSlice';
 
+// Sidebar Component
 const Sidebar = () => {
-  const dispatch = useDispatch();
   const { isSidebarOpen } = useSelector((state) => state.ui);
   const [servicesExpanded, setServicesExpanded] = React.useState(false);
   const [invoicesExpanded, setInvoicesExpanded] = React.useState(false);
@@ -58,32 +58,9 @@ const Sidebar = () => {
       }`}
     >
       <div className="h-full flex flex-col">
-        {/* Hamburger Button - Always visible */}
-        <div className="flex-shrink-0 px-3 pt-4 pb-3 border-b border-gray-200">
-          <button
-            onClick={() => dispatch(toggleSidebar())}
-            className="w-full p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 active:scale-95 flex items-center justify-center"
-            aria-label="Toggle sidebar"
-          >
-            <svg
-              className="w-6 h-6 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
-
         {/* User Profile Section - Only show when expanded */}
         {isSidebarOpen && (
-          <div className="flex-shrink-0 px-4 pt-3 pb-3">
+          <div className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-gray-200">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 transition-all duration-200 cursor-pointer border border-gray-200 shadow-sm">
               <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
                 V
@@ -96,8 +73,13 @@ const Sidebar = () => {
           </div>
         )}
 
+        {/* Empty space when collapsed to align with header */}
+        {!isSidebarOpen && (
+          <div className="flex-shrink-0 h-16 border-b border-gray-200"></div>
+        )}
+
         {/* Navigation - Scrollable */}
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
             {menuItems.map((item) => (
               <li key={item.path}>

@@ -25,7 +25,7 @@ const SearchBar = ({ value }) => {
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by customer name or phone..."
+        placeholder="Search by name or phone..."
         icon={
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
