@@ -1,10 +1,18 @@
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFilterPanel } from '../../store/slices/uiSlice';
 import SearchBar from '../Filters/SearchBar';
 
 const Header = () => {
+  const [searchTerm, setSearchTerm] = React.useState('');
+
   const dispatch = useDispatch();
   const { isFilterPanelOpen, isSidebarOpen } = useSelector((state) => state.ui);
+
+  const handleClear = () => {
+    setSearchTerm('');
+    dispatch({ type: 'filters/setSearch', payload: '' });
+  };
 
   return (
     <header 
@@ -16,9 +24,9 @@ const Header = () => {
       }}
     >
       <div className="px-4 py-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           {/* Left Section - Hamburger + Logo + Title */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-shrink-0">
             {/* Hamburger Button */}
             <button
               onClick={() => dispatch({ type: 'ui/toggleSidebar' })}
@@ -48,13 +56,15 @@ const Header = () => {
             </div>
 
             {/* Title */}
-            <h1 className="text-lg font-bold text-gray-900 tracking-tight">
+            <h1 className="text-lg font-bold text-gray-900 tracking-tight hidden sm:block">
               Retail Sales Management
             </h1>
           </div>
 
-          {/* Right Section */}
-          <div className="flex items-center space-x-2">
+
+          {/* Right Section - Buttons */}
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {/* Filter Button */}
             <SearchBar />
           </div>
         </div>
