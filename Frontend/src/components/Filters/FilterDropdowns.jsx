@@ -51,10 +51,10 @@ const FilterDropdowns = () => {
     };
 
     return (
-      <div className="relative">
+      <div className="relative px-4 py-8">
         <button
           onClick={() => toggleDropdown(filterKey)}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          className="inline-flex items-center px-4 py-8 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
         >
           {label}
           {selectedCount > 0 && (
@@ -104,7 +104,7 @@ const FilterDropdowns = () => {
     const hasValue = filters.ageMin !== null || filters.ageMax !== null;
 
     return (
-      <div className="relative">
+      <div className="relative p-8">
         <button
           onClick={() => toggleDropdown('age')}
           className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"

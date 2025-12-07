@@ -1,24 +1,27 @@
-// frontend/src/components/Layout/Header.jsx
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleSidebar } from '../../store/slices/uiSlice';
-import { setSearch } from '../../store/slices/filtersSlice';
+import { toggleSidebar, toggleFilterPanel } from '../../store/slices/uiSlice';
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { search } = useSelector((state) => state.filters);
+  const { isFilterPanelOpen, isSidebarOpen } = useSelector((state) => state.ui);
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
-      <div className="px-4 py-4">
+    <header 
+      className={`bg-white border-b border-gray-200 fixed top-0 right-0 z-50 shadow-sm transition-all duration-300 ${
+        isSidebarOpen ? 'left-64' : 'left-0'
+      }`}
+    >
+      <div className="px-6 py-4">
         <div className="flex items-center justify-between">
+          {/* Left Section */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => dispatch(toggleSidebar())}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 hover:shadow-sm"
               aria-label="Toggle sidebar"
             >
               <svg
-                className="w-6 h-6 text-gray-600"
+                className="w-6 h-6 text-gray-700"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -31,33 +34,66 @@ const Header = () => {
                 />
               </svg>
             </button>
-            <h1 className="text-xl font-bold text-gray-900">
-              Sales Management System
-            </h1>
+            
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center shadow-md">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+                Retail Sales Management
+              </h1>
+            </div>
           </div>
-          
+
+          {/* Right Section */}
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Name, Phone no."
-                value={search}
-                onChange={(e) => dispatch(setSearch(e.target.value))}
-                className="w-80 px-4 py-2 pl-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-              <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            {/* Filter Button */}
+            <button
+              onClick={() => dispatch(toggleFilterPanel())}
+              className={`p-2.5 rounded-xl transition-all duration-200 ${
+                isFilterPanelOpen
+                  ? 'bg-gray-900 text-white shadow-md'
+                  : 'hover:bg-gray-100 text-gray-700'
+              }`}
+              aria-label="Toggle filters"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                 />
               </svg>
+            </button>
+
+            {/* Notifications Button */}
+            <button
+              className="p-2.5 rounded-xl hover:bg-gray-100 text-gray-700 transition-all duration-200 relative"
+              aria-label="Notifications"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            {/* User Menu */}
+            <div className="flex items-center space-x-2 pl-3 border-l border-gray-200">
+              <div className="text-right hidden md:block">
+                <div className="text-sm font-semibold text-gray-900">Anurag Yadav</div>
+                <div className="text-xs text-gray-600">Administrator</div>
+              </div>
+              <button className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200">
+                V
+              </button>
             </div>
           </div>
         </div>
