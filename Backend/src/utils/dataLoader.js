@@ -1,4 +1,4 @@
-// backend/src/utils/dataLoader.js
+// backend/src/utils/dataLoader.js - PRODUCTION-READY VERSION
 import fs from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
@@ -14,43 +14,98 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ⭐ Direct download link - Dropbox (MUST end with dl=1)
 const datasetURL = "https://www.dropbox.com/scl/fi/vdoovyzfpgm2d2k6yxz5w/truestate_assignment_dataset.csv?rlkey=zt63myzyibflct8nlplpmtp2k&st=zvx4qlaf&dl=1";
-
-// Temp CSV download location
 const tempDatasetPath = path.join(__dirname, "../../data/cloud_dataset.csv");
 
-// ⭐ Dropbox download + redirect handling
-async function downloadDataset(url, dest) {
+// Track loading state
+let isLoading = false;
+let loadingProgress = {
+  status: 'idle', // idle, downloading, parsing, loading, completed, error
+  recordsProcessed: 0,
+  totalRecords: 0,
+  error: null,
+  startTime: null
+};
+
+// Download with timeout and retry logic
+async function downloadDataset(url, dest, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`⟳ Download attempt ${attempt}/${retries}...`);
+      await downloadWithTimeout(url, dest, 60000); // 60s timeout
+      return dest;
+    } catch (error) {
+      console.error(`✗ Download attempt ${attempt} failed:`, error.message);
+      if (attempt === retries) throw error;
+      await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Exponential backoff
+    }
+  }
+}
+
+function downloadWithTimeout(url, dest, timeout) {
   return new Promise((resolve, reject) => {
-    console.log("⟳ Connecting to Dropbox...");
+    const timer = setTimeout(() => {
+      req.destroy();
+      reject(new Error(`Download timeout after ${timeout}ms`));
+    }, timeout);
 
-    https.get(url, (res) => {
+    const req = https.get(url, {
+      timeout: timeout,
+      headers: {
+        'User-Agent': 'Node.js'
+      }
+    }, (res) => {
+      clearTimeout(timer);
 
-      if (res.statusCode === 302 && res.headers.location) {
-        console.log("⟳ Dropbox redirect detected... following...");
-        return downloadDataset(res.headers.location, dest)
-          .then(resolve)
-          .catch(reject);
+      // Handle redirects
+      if (res.statusCode === 302 || res.statusCode === 301) {
+        if (res.headers.location) {
+          console.log("⟳ Following redirect...");
+          return downloadWithTimeout(res.headers.location, dest, timeout)
+            .then(resolve)
+            .catch(reject);
+        }
       }
 
       if (res.statusCode !== 200) {
-        return reject(`Download failed: HTTP ${res.statusCode}`);
+        return reject(new Error(`HTTP ${res.statusCode}`));
       }
 
       const file = fs.createWriteStream(dest);
+      let downloaded = 0;
+      const totalSize = parseInt(res.headers['content-length'] || '0');
+
+      res.on('data', (chunk) => {
+        downloaded += chunk.length;
+        if (totalSize > 0 && downloaded % 1000000 === 0) {
+          const percent = ((downloaded / totalSize) * 100).toFixed(1);
+          console.log(`⟳ Downloaded ${percent}%`);
+        }
+      });
+
       res.pipe(file);
 
       file.on("finish", () => {
         file.close(() => {
-          console.log("✓ Dataset downloaded successfully!");
+          console.log("✓ Download complete!");
           resolve(dest);
         });
       });
 
-      file.on("error", reject);
+      file.on("error", (err) => {
+        fs.unlink(dest, () => reject(err));
+      });
+    });
 
-    }).on("error", reject);
+    req.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
   });
 }
 
@@ -102,13 +157,32 @@ function normalizeRecord(record) {
   return normalized;
 }
 
-async function loadDataset(forceReload = false) {
+// NON-BLOCKING ASYNC LOAD - runs in background
+async function loadDatasetAsync(forceReload = false) {
+  if (isLoading) {
+    console.log("⚠ Load already in progress");
+    return { status: 'loading', progress: loadingProgress };
+  }
+
   try {
+    isLoading = true;
+    loadingProgress = {
+      status: 'checking',
+      recordsProcessed: 0,
+      totalRecords: 0,
+      error: null,
+      startTime: Date.now()
+    };
+
     initializeDatabase();
 
     const existingCount = getRecordCount();
     if (existingCount > 0 && !forceReload) {
-      console.log(`✓ Database already contains ${existingCount} records`);
+      console.log(`✓ Database ready with ${existingCount} records`);
+      loadingProgress.status = 'completed';
+      loadingProgress.recordsProcessed = existingCount;
+      loadingProgress.totalRecords = existingCount;
+      isLoading = false;
       return existingCount;
     }
 
@@ -117,30 +191,46 @@ async function loadDataset(forceReload = false) {
       clearDatabase();
     }
 
+    // Download phase
+    loadingProgress.status = 'downloading';
     await downloadDataset(datasetURL, tempDatasetPath);
 
+    // Parse and load phase
+    loadingProgress.status = 'loading';
     console.log("⟳ Parsing dataset...");
 
     return new Promise((resolve, reject) => {
-      const batchSize = 1000;
+      const batchSize = 500; // Smaller batches for production
       let batch = [];
       let totalProcessed = 0;
       const startTime = Date.now();
 
-      fs.createReadStream(tempDatasetPath)
+      const stream = fs.createReadStream(tempDatasetPath)
         .pipe(csv())
         .on('data', (data) => {
-          const normalized = normalizeRecord(data);
-          batch.push(normalized);
+          try {
+            const normalized = normalizeRecord(data);
+            batch.push(normalized);
 
-          if (batch.length >= batchSize) {
-            insertRecords(batch);
-            totalProcessed += batch.length;
-            batch = [];
+            if (batch.length >= batchSize) {
+              // Pause stream while inserting
+              stream.pause();
+              
+              insertRecords(batch);
+              totalProcessed += batch.length;
+              batch = [];
 
-            if (totalProcessed % 10000 === 0) {
-              console.log(`⟳ ${totalProcessed.toLocaleString()} records processed...`);
+              loadingProgress.recordsProcessed = totalProcessed;
+
+              if (totalProcessed % 10000 === 0) {
+                console.log(`⟳ ${totalProcessed.toLocaleString()} records loaded...`);
+              }
+
+              // Resume after small delay to prevent blocking
+              setImmediate(() => stream.resume());
             }
+          } catch (err) {
+            console.error('Error processing record:', err);
           }
         })
         .on('end', () => {
@@ -152,18 +242,56 @@ async function loadDataset(forceReload = false) {
           const duration = ((Date.now() - startTime) / 1000).toFixed(2);
           console.log(`✓ Loaded ${totalProcessed.toLocaleString()} records in ${duration}s`);
 
+          loadingProgress.status = 'completed';
+          loadingProgress.recordsProcessed = totalProcessed;
+          loadingProgress.totalRecords = totalProcessed;
+          isLoading = false;
+
+          // Cleanup temp file
+          fs.unlink(tempDatasetPath, (err) => {
+            if (err) console.warn('Could not delete temp file:', err.message);
+          });
+
           resolve(totalProcessed);
         })
         .on('error', (err) => {
           console.error("✗ CSV reading error:", err.message);
+          loadingProgress.status = 'error';
+          loadingProgress.error = err.message;
+          isLoading = false;
           reject(err);
         });
     });
 
   } catch (error) {
-    console.error("✗ Load failed:", error);
+    console.error("✗ Load failed:", error.message);
+    loadingProgress.status = 'error';
+    loadingProgress.error = error.message;
+    isLoading = false;
     throw error;
   }
 }
 
-export { loadDataset, normalizeRecord };
+// Get current loading status
+function getLoadingStatus() {
+  return {
+    ...loadingProgress,
+    isLoading,
+    duration: loadingProgress.startTime 
+      ? Math.round((Date.now() - loadingProgress.startTime) / 1000) 
+      : 0
+  };
+}
+
+// Check if data is ready
+function isDataReady() {
+  const count = getRecordCount();
+  return count > 0;
+}
+
+export { 
+  loadDatasetAsync, 
+  getLoadingStatus, 
+  isDataReady,
+  normalizeRecord 
+};
